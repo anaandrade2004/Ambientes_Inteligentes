@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<title>Carregar XML</title>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5 text-center">
+  <h2 class="text-white mb-4">Carregar Ficheiro XML</h2>
+
+  <form action="/add_dados" method="POST" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
+    <div class="input-group mb-3 w-50">
+      <label class="input-group-text" for="inputGroupFile01">Upload</label>
+      <input type="file" class="form-control" id="inputGroupFile01" name="ficheiro" accept=".xml" required>
+    </div>
+    <button type="submit" class="btn btn-outline-light btn-lg">Carregar</button>
+  </form>
+
+  {% if mensagem %}
+    <div class="alert alert-info mt-4 w-50 mx-auto" role="alert">
+      {{ mensagem }}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

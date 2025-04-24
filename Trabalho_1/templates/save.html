@@ -1,0 +1,23 @@
+{% extends 'layout.html'%}
+
+{% block head %}
+<title>Guardar Ficheiro</title>
+{% endblock %}
+
+{% block body %}
+<div class="px-4 py-5 my-5 justify-content-center text-center">
+    <h1 class="display-5 fw-bold text-body-white">Guardar dados</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4 text-body-white">Escolha o formato de ficheiro:</p>
+        <form method="POST" action="/salvar">
+            <div class="mb-3">
+                <select name="file_type" class="form-select form-select-lg text-center">
+                    <option value="csv">CSV</option>
+                    <option value="json">JSON</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-outline-light btn-lg">Download</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

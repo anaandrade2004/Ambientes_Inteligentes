@@ -1,0 +1,120 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<title>Adicionar Dados</title>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5 text-center">
+    <h2 class="text-white mb-4">Adicionar Dados</h2>
+
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs justify-content-center mb-4" id="graficoTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if aba_ativa == 'simples' %}active text-color{% endif %}" 
+                    id="simples-tab" data-bs-toggle="tab" data-bs-target="#simples" 
+                    type="button" role="tab" aria-controls="simples" 
+                    aria-selected="{{ 'true' if aba_ativa == 'simples' else 'false' }}">
+                Temperatura
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if aba_ativa == 'avancados' %}active{% endif %}" 
+                    id="avancados-tab" data-bs-toggle="tab" data-bs-target="#avancados" 
+                    type="button" role="tab" aria-controls="avancados" 
+                    aria-selected="{{ 'true' if aba_ativa == 'avancados' else 'false' }}">
+                BPM
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="graficoTabsContent">
+
+        <!-- Aba Temperatura -->
+        <div class="tab-pane fade {% if aba_ativa == 'simples' %}show active{% endif %}" 
+             id="simples" role="tabpanel" aria-labelledby="simples-tab">
+            <div class="container px-4 py-5">
+                <h2 class="my-4">Inserir Dados de Temperatura</h2>
+
+                {% if mensagem %}
+                    <div class="alert alert-light" role="alert">
+                        {{ mensagem }}
+                    </div>
+                {% endif %}
+
+                <form method="POST">
+                    <input type="hidden" name="form_type" value="temperatura">
+
+                    <div class="mb-3">
+                        <label for="dia" class="form-label">Dia</label>
+                        <input type="number" class="form-control" id="dia" name="dia" min="1" max="31" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mes" class="form-label">Mês</label>
+                        <input type="number" class="form-control" id="mes" name="mes" min="1" max="12" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ano" class="form-label">Ano</label>
+                        <input type="number" class="form-control" id="ano" name="ano" min="2000" max="2100" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cidade" class="form-label">Cidade</label>
+                        <input type="text" class="form-control" id="cidade" name="cidade" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="temp_min" class="form-label">Temperatura Mínima</label>
+                        <input type="number" class="form-control" id="temp_min" name="temp_min" step="0.1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="temp_max" class="form-label">Temperatura Máxima</label>
+                        <input type="number" class="form-control" id="temp_max" name="temp_max" step="0.1" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-outline-light">Gerar e Enviar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Aba BPM -->
+        <div class="tab-pane fade {% if aba_ativa == 'avancados' %}show active{% endif %}" 
+             id="avancados" role="tabpanel" aria-labelledby="avancados-tab">
+            <div class="container px-4 py-5">
+                <h2 class="my-4 text-white">Aumentar Dados de BPM</h2>
+
+                <form method="POST">
+                    <input type="hidden" name="form_type" value="bpm">
+
+                    <div class="mb-3">
+                        <label for="data" class="form-label text-white">Data existente (AAAA-MM-DD)</label>
+                        <input type="date" class="form-control" id="data" name="data" required>
+                    </div>
+
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="incluir_anomalias" id="incluir_anomalias">
+                            <label class="form-check-label text-white ms-2" for="incluir_anomalias">
+                                Incluir anomalias
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-outline-light">Aumentar Dados</button>
+                </form>
+
+                {% if mensagem_bpm %}
+                    <div class="alert alert-light mt-3">
+                        {{ mensagem_bpm }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,384 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<title>Análise</title>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5 text-center">
+<h2 class="text-white mb-4">Análise dos Dados</h2>
+<ul class="nav nav-tabs justify-content-center mb-4" id="graficoTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+    <button class="nav-link active text-color" id="simples-tab" data-bs-toggle="tab" data-bs-target="#simples" type="button" role="tab" aria-controls="simples" aria-selected="true">
+        Simples
+    </button>
+    </li>
+    <li class="nav-item" role="presentation">
+    <button class="nav-link" id="avancados-tab" data-bs-toggle="tab" data-bs-target="#avancados" type="button" role="tab" aria-controls="avancados" aria-selected="false">
+        Avançados
+    </button>
+    </li>
+</ul>
+
+
+<div class="tab-content" id="graficoTabsContent">
+
+    <div class="tab-pane fade show active" id="simples" role="tabpanel" aria-labelledby="simples-tab">
+    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center flex-wrap mb-4">
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalBPM">
+        Ver Histograma de BPM
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalTemp">
+        Ver Gráfico de Temperatura
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalBPMDia">
+        Ver BPM por Dia
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalCombinado">
+        Ver Gráfico Combinado
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalCorrelacao">
+        Ver Matriz de Correlação
+        </button>
+    </div>
+
+    <div class="text-white text-center">
+        <h4>Correlação de Pearson</h4>
+        {% if correlacao[0] and correlacao[1] %}
+        <p>Coeficiente: <strong>{{ correlacao[0] }}</strong></p>
+        <p>Valor-p: <strong>{{ correlacao[1] }}</strong></p>
+        {% else %}
+        <p class="text-muted">Dados insuficientes para calcular a correlação de Pearson.</p>
+        {% endif %}
+    </div>
+    </div>
+
+    <!-- Avançados -->
+    <div class="tab-pane fade" id="avancados" role="tabpanel" aria-labelledby="avancados-tab">
+    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center flex-wrap">
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalBarrasSpline">
+        Evolução Média BPM (Barras + Spline)
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalBoxplotBPM">
+        Boxplot BPM por Dia
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalHeatmapBPM">
+        Heatmap BPM (Hora x Dia)
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalComparativo">
+        Comparativo BPM vs Temperatura
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalScatterTempBPM">
+        Relação Temperatura vs BPM
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalSerieTemporal">
+        Evolução Temporal BPM e Temperatura
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalHistogramaBPM">
+        Histograma de BPM
+        </button>
+        <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#modalTempCidade">
+        Temperatura Média por Cidade
+        </button>
+    </div>
+    </div>
+
+</div>
+</div>
+
+
+
+<div class="modal fade" id="modalBPM" tabindex="-1" aria-labelledby="modalBPMLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Histograma de BPM</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_bpm %}
+        <img src="data:image/png;base64,{{ grafico_bpm }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados de BPM.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalTemp" tabindex="-1" aria-labelledby="modalTempLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Gráfico de Temperatura</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_temp %}
+        <img src="data:image/png;base64,{{ grafico_temp }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados de temperatura.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalBPMDia" tabindex="-1" aria-labelledby="modalBPMDiaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+      <div class="modal-content bg-dark text-white">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalBPMDiaLabel">Variação do BPM por Dia</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body text-center">
+          <form method="GET" action="{{ url_for('dados') }}">
+            <label for="diaSelecionado" class="form-label">Escolhe o dia:</label>
+            <input type="date" id="diaSelecionado" name="dia" class="form-control w-auto d-inline-block" required>
+            <button type="submit" class="btn btn-primary ms-2">Gerar Gráfico</button>
+          </form>
+  
+          <hr class="my-4">
+  
+          {% if grafico_bpm_dia %}
+          <img src="data:image/png;base64,{{ grafico_bpm_dia }}" class="img-fluid rounded shadow">
+          {% else %}
+          <p class="text-muted">Sem dados para o gráfico BPM por dia.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+<div class="modal fade" id="modalCombinado" tabindex="-1" aria-labelledby="modalCombinadoLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Gráfico Combinado</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_combinado %}
+        <img src="data:image/png;base64,{{ grafico_combinado }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados suficientes para o gráfico combinado.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="modalCorrelacao" tabindex="-1" aria-labelledby="modalCorrelacaoLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Matriz de Correlação</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_correlacao %}
+        <img src="data:image/png;base64,{{ grafico_correlacao }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados para a matriz de correlação.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+</div>
+<div class="modal fade" id="modalBarrasSpline" tabindex="-1" aria-labelledby="modalBarrasSplineLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Evolução da Média do BPM (Barras + Spline)</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_barras_spline_bpm %}
+        <img src="data:image/png;base64,{{ grafico_barras_spline_bpm }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="modalBoxplotBPM" tabindex="-1" aria-labelledby="modalBoxplotBPMLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Boxplot BPM por Dia</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_boxplot_bpm %}
+        <img src="data:image/png;base64,{{ grafico_boxplot_bpm }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="modalHeatmapBPM" tabindex="-1" aria-labelledby="modalHeatmapBPMLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Heatmap da Média de BPM por Hora e Dia</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_heatmap_bpm %}
+        <img src="data:image/png;base64,{{ grafico_heatmap_bpm }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalComparativo" tabindex="-1" aria-labelledby="modalComparativoLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Comparação BPM e Temperatura Média Diária</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_comparativo_bpm_temp %}
+        <img src="data:image/png;base64,{{ grafico_comparativo_bpm_temp }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalScatterTempBPM" tabindex="-1" aria-labelledby="modalScatterTempBPMLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+<div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+    <h5 class="modal-title">Relação entre Temperatura e BPM</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+    {% if grafico_scatter_temp_bpm %}
+        <img src="data:image/png;base64,{{ grafico_scatter_temp_bpm }}" class="img-fluid rounded shadow">
+    {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+    {% endif %}
+    </div>
+</div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalSerieTemporal" tabindex="-1" aria-labelledby="modalSerieTemporalLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+<div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+    <h5 class="modal-title">Evolução Temporal de BPM e Temperatura</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+    {% if grafico_serie_temporal %}
+        <img src="data:image/png;base64,{{ grafico_serie_temporal }}" class="img-fluid rounded shadow">
+    {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+    {% endif %}
+    </div>
+</div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalScatterTempBPM" tabindex="-1" aria-labelledby="modalScatterTempBPMLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+<div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+    <h5 class="modal-title">Relação entre Temperatura e BPM</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+    {% if grafico_scatter_temp_bpm %}
+        <img src="data:image/png;base64,{{ grafico_scatter_temp_bpm }}" class="img-fluid rounded shadow">
+    {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+    {% endif %}
+    </div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="modalSerieTemporal" tabindex="-1" aria-labelledby="modalSerieTemporalLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+<div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+    <h5 class="modal-title">Evolução Temporal de BPM e Temperatura</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+    {% if grafico_serie_temporal %}
+        <img src="data:image/png;base64,{{ grafico_serie_temporal }}" class="img-fluid rounded shadow">
+    {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+    {% endif %}
+    </div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="modalHistogramaBPM" tabindex="-1" aria-labelledby="modalHistogramaBPMLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Distribuição dos BPMs</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_histograma_bpm %}
+        <img src="data:image/png;base64,{{ grafico_histograma_bpm }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados para este gráfico.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal fade" id="modalTempCidade" tabindex="-1" aria-labelledby="modalTempCidadeLabel" aria-hidden="true">
+<div class="modal-dialog modal-fullscreen">
+    <div class="modal-content bg-dark text-white">
+    <div class="modal-header">
+        <h5 class="modal-title">Temperatura Média por Cidade</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body text-center">
+        {% if grafico_temp_por_cidade %}
+        <img src="data:image/png;base64,{{ grafico_temp_por_cidade }}" class="img-fluid rounded shadow">
+        {% else %}
+        <p class="text-muted">Sem dados de cidade disponíveis.</p>
+        {% endif %}
+    </div>
+    </div>
+</div>
+</div>
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('dia')) {
+        const modal = new bootstrap.Modal(document.getElementById('modalBPMDia'));
+        modal.show();
+      }
+    });
+  </script>
+{% endblock %}

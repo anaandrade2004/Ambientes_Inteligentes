@@ -1,0 +1,60 @@
+{% extends 'layout.html'%}
+
+{% block head %}
+<title>Home</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="d-flex align-items-center justify-content-center vh-100">
+  <div class="text-center">
+  <h1 class="display-5 fw-bold text-body-white">Bem-Vindo!</h1>
+  <div class="col-lg-6 mx-auto">
+    <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-12 mb-3">
+            <a href="/estatisticas" class="btn btn-outline-light btn-lg w-100">Estatísticas dos dados</a>
+          </div>
+          <div class="col-md-6 col-12 mb-3">
+            <a href="/salvar" class="btn btn-outline-light btn-lg w-100">Guardar dados</a>
+          </div>
+          <div class="col-md-6 col-12 mb-3">
+            <a href="/analise_dados" class="btn btn-outline-light btn-lg w-100">Analise de dados</a>
+          </div>
+          <div class="col-md-6 col-12 mb-3">
+            <a href="/add_dados" class="btn btn-outline-light btn-lg w-100">Carregar Dados</a>
+          </div>
+          <div class="col-md-6 col-12 mb-3">
+            <a href="/adicionar" class="btn btn-outline-light btn-lg w-100">Adicionar Dados</a>
+          </div>
+          <div class="col-md-6 col-12 mb-3">
+            <a href="/verificar_anomalias" class="btn btn-outline-light btn-lg w-100">Verificar Anomalias</a>
+          </div>
+          
+        </div>
+      </div>
+      {% if anomalias %}
+  <div class="alert alert-warning alert-dismissible fade show text-center mt-3" role="alert">
+    <strong>Atenção!</strong> Foram encontradas <strong>{{ anomalias|length }}</strong> anomalias nos dados:
+    
+    <div class="mt-2 text-start overflow-auto" style="max-height: 250px;">
+      <ul class="mb-0">
+        {% for a in anomalias %}
+          <li>
+            Em <strong>{{ a.timestamp }}</strong>: BPM = <strong>{{ a.bpm }}</strong>, Temperatura = {{ a.temperatura }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+  </div>
+{% endif %}
+
+
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock %}
